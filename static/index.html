@@ -11,7 +11,7 @@
       content="This AI assistant answers questions about Farhad Seyfullazada's resume and provides information about his skills, experience, and projects."
     />
     <meta property="og:image" content="og-image.png" />
-    <meta property="og:url" content="http://localhost:3000" />
+    <meta property="og:url" content="https://farhadzada.com" />
     <meta property="og:type" content="website" />
     <style>
       * {
@@ -563,7 +563,7 @@
         thisButton.style.display = "none";
 
         if (sessionActive) {
-          await fetch("http://localhost:3000/session", {
+          await fetch("https://farhadzada.com/session", {
             method: "DELETE",
             headers: {
               Accept: "application/json",
@@ -572,7 +572,7 @@
         }
 
         try {
-          const response = await fetch("http://localhost:3000/session", {
+          const response = await fetch("https://farhadzada.com/session", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -619,7 +619,7 @@
         updateInputPosition();
         const loadingDiv = showLoading();
         try {
-          let response = await fetch("http://localhost:3000/session", {
+          let response = await fetch("https://farhadzada.com/session", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
