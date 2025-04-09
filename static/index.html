@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Farhad Seyfullazada</title>
+    <meta property="og:title" content="Farhad Seyfullazada Resume Assistant" />
+    <meta
+      property="og:description"
+      content="This AI assistant answers questions about Farhad Seyfullazada's resume and provides information about his skills, experience, and projects."
+    />
+    <meta property="og:image" content="og-image.png" />
+    <meta property="og:url" content="http://localhost:3000" />
+    <meta property="og:type" content="website" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: #333;
+        overflow: hidden;
+      }
+
+      header {
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: flex-end;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      #welcome-message {
+        text-align: center;
+        padding: 15px;
+        margin: 10px auto;
+        border: 1px solid black;
+        border-radius: 12px;
+        width: 50%;
+        max-width: 80%;
+      }
+
+      #chat-container {
+        max-height: 77vh;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+        height: 77vh;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      #input-container {
+        position: absolute;
+        width: 85%;
+        max-width: 800px;
+        left: 50%;
+        transform: translateX(-50%);
+        transition: all 0.4s ease;
+        padding-bottom: 10px;
+        z-index: 5;
+      }
+
+      #input-container.focused,
+      #input-container.has-messages {
+        position: fixed;
+        bottom: 10px;
+        width: 90%;
+      }
+
+      #suggestions {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 5px 0;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        position: relative;
+        width: 100%;
+      }
+
+      #suggestions::-webkit-scrollbar {
+        display: none;
+      }
+
+      .suggestion {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-size: 13px;
+        transition: transform 0.2s, background 0.2s;
+        flex-shrink: 0;
+        display: inline-block;
+      }
+
+      .suggestion:hover {
+        transform: translateY(-2px);
+        background: white;
+      }
+
+      #input-wrapper {
+        display: flex;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        padding: 8px;
+        transition: box-shadow 0.3s;
+        align-items: center;
+      }
+
+      #input-wrapper:focus-within {
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      #message-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 8px;
+        min-width: 0;
+      }
+
+      #send-btn {
+        background: linear-gradient(45deg, #0066ff, #00ccff);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+
+      #send-btn:hover {
+        transform: scale(1.05);
+      }
+
+      #new-session-btn {
+        background: linear-gradient(45deg, #ff4444, #ff6666);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-size: 14px;
+      }
+
+      #new-session-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .message {
+        margin: 10px 0;
+        padding: 10px 15px;
+        border-radius: 12px;
+        max-width: 80%;
+        width: fit-content;
+        animation: fadeIn 0.3s ease-in;
+        word-wrap: break-word;
+      }
+
+      .message p {
+        margin: 5px 0;
+      }
+      .message strong {
+        font-weight: bold;
+      }
+
+      .message em {
+        font-style: italic;
+      }
+
+      .user-message {
+        background: #496ca0;
+        color: white;
+        margin-left: auto;
+        text-align: left;
+      }
+
+      .ai-message {
+        background: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-right: auto;
+        text-align: left;
+      }
+
+      .centered {
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 20;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+      }
+
+      #modal-message {
+        margin-bottom: 20px;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      #modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .modal-btn {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+
+      #confirm-btn {
+        background: #ff4444;
+        color: white;
+      }
+
+      #confirm-btn:hover {
+        background: #cc0000;
+      }
+
+      #cancel-btn {
+        background: #ccc;
+        color: #333;
+      }
+
+      #cancel-btn:hover {
+        background: #bbb;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 1024px) {
+        #chat-container {
+          max-height: 70vh;
+        }
+      }
+      @media (max-width: 768px) {
+        #input-container {
+          width: 90%;
+        }
+        #welcome-message {
+          font-size: 12px;
+        }
+
+        #input-container.focused,
+        #input-container.has-messages {
+          width: 95%;
+          bottom: 5px;
+        }
+
+        #chat-container {
+          padding: 10px;
+          max-height: 77vh;
+        }
+
+        #suggestions {
+          gap: 8px;
+          padding: 5px 0;
+        }
+
+        .suggestion {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+
+        #input-wrapper {
+          padding: 6px;
+        }
+
+        #message-input {
+          padding: 8px;
+          font-size: 13px;
+        }
+
+        #send-btn {
+          padding: 8px 15px;
+          font-size: 13px;
+        }
+
+        .message {
+          max-width: 85%;
+          padding: 8px 12px;
+          font-size: 14px;
+        }
+
+        header {
+          padding: 8px 10px;
+        }
+
+        #new-session-btn {
+          padding: 6px 12px;
+          font-size: 13px;
+        }
+
+        #modal-content {
+          padding: 15px;
+        }
+
+        #modal-message {
+          font-size: 14px;
+        }
+
+        .modal-btn {
+          padding: 6px 15px;
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #input-container {
+          width: 90%;
+        }
+
+        #welcome-message {
+          font-size: 10px;
+        }
+        #chat-container {
+          padding: 1px;
+          max-height: 77vh;
+        }
+
+        #input-container.focused,
+        #input-container.has-messages {
+          width: 98%;
+        }
+
+        #suggestions {
+          gap: 6px;
+        }
+
+        .suggestion {
+          padding: 5px 10px;
+          font-size: 11px;
+        }
+
+        #message-input {
+          font-size: 12px;
+        }
+        #send-btn {
+          padding: 6px 12px;
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <button id="new-session-btn">New Session</button>
+    </header>
+    <div id="welcome-message">
+      Hello! I'm your AI assistant to help you with questions about Farhad Seyfullazada's resume. You can ask me questions or choose from
+      the suggestions below.
+    </div>
+    <div id="chat-container"></div>
+    <div id="input-container" class="centered">
+      <div id="suggestions">
+
+        <div class="suggestion" onclick="sendSuggestion('Why to choose Farhad?')">Why to choose Farhad?</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s experience?')">Experience</div>
+        <div class="suggestion" onclick="sendSuggestion('What are Farhad Seyfullazada\'s skills?')">Skills</div>
+        <div class="suggestion" onclick="sendSuggestion('What projects has Farhad Seyfullazada worked on?')">Projects</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s education background?')">Education</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s contact information?')">Contact</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s location?')">Location</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s LinkedIn profile?')">LinkedIn</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s GitHub profile?')">GitHub</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s portfolio?')">Portfolio</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s summary?')">Summary</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s work history?')">Work History</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s certifications?')">Certifications</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s languages?')">Languages</div>
+        <div class="suggestion" onclick="sendSuggestion('What is Farhad Seyfullazada\'s hobbies?')">Hobbies</div>
+      </div>
+      <div id="input-wrapper">
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+    <div id="modal">
+      <div id="modal-content">
+        <div id="modal-message">
+          Be aware this would clear all your previous chat and messages. Are you still willing to continue?
+        </div>
+        <div id="modal-buttons">
+          <button id="confirm-btn" class="modal-btn">Confirm</button>
+          <button style="display: none" id="loading-btn" class="modal-btn">Loading...</button>
+          <button id="cancel-btn" class="modal-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const inputContainer = document.getElementById("input-container");
+      const messageInput = document.getElementById("message-input");
+      const sendBtn = document.getElementById("send-btn");
+      const chatContainer = document.getElementById("chat-container");
+      const newSessionBtn = document.getElementById("new-session-btn");
+      const modal = document.getElementById("modal");
+      const confirmBtn = document.getElementById("confirm-btn");
+      const cancelBtn = document.getElementById("cancel-btn");
+      let sessionActive = false;
+
+      // Load chat history from localStorage on page load
+      window.addEventListener("load", () => {
+        const savedChat = localStorage.getItem("chatHistory");
+        if (savedChat) {
+          chatContainer.innerHTML = savedChat;
+          let welcomeMessage = document.getElementById("welcome-message");
+          welcomeMessage.style.display = "none";
+          sessionActive = true;
+          updateInputPosition();
+        }
+        scrollToBottom();
+      });
+
+      // Add event listeners
+      messageInput.addEventListener("focus", () => {
+        inputContainer.classList.add("focused");
+        inputContainer.classList.remove("centered");
+      });
+
+      messageInput.addEventListener("blur", () => {
+        if (chatContainer.children.length > 0) {
+          inputContainer.classList.add("has-messages");
+        } else {
+          inputContainer.classList.remove("focused");
+          inputContainer.classList.add("centered");
+        }
+      });
+
+      messageInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendMessage();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          messageInput.blur();
+        }
+      });
+
+      sendBtn.addEventListener("click", sendMessage);
+      newSessionBtn.addEventListener("click", () => {
+        modal.style.display = "flex";
+      });
+
+      // Function to show loading animation
+      function showLoading() {
+        const loadingDiv = document.createElement("div");
+        loadingDiv.classList.add("message", "ai-message");
+        loadingDiv.id = "loading-message";
+        loadingDiv.textContent = "...";
+        chatContainer.appendChild(loadingDiv);
+        scrollToBottom();
+        return loadingDiv;
+      }
+
+      // Function to remove loading animation
+      function removeLoading() {
+        const loadingDiv = document.getElementById("loading-message");
+        if (loadingDiv) {
+          loadingDiv.remove();
+        }
+      }
+
+      // Function to save chat to localStorage
+      function saveChat() {
+        localStorage.setItem("chatHistory", chatContainer.innerHTML);
+      }
+
+      // Function to scroll to bottom ensuring last message is fully visible
+      function scrollToBottom() {
+        const lastMessage = chatContainer.lastElementChild;
+        if (lastMessage) {
+          lastMessage.scrollIntoView({ behavior: "smooth", block: "end" });
+        } else {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }
+
+      // Function to update input position based on chat content
+      function updateInputPosition() {
+        if (chatContainer.children.length > 0) {
+          inputContainer.classList.add("has-messages");
+          inputContainer.classList.remove("centered");
+        } else {
+          inputContainer.classList.remove("has-messages");
+          inputContainer.classList.add("centered");
+        }
+      }
+
+      // Simple Markdown formatting function
+      function formatMessage(text) {
+        let formatted = text
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Bold
+          .replace(/\*(.*?)\*/g, "<em>$1</em>") // Italic
+          .replace(/\n/g, "<br>"); // Line breaks
+        return formatted;
+      }
+
+      // Start new session and clear history
+      confirmBtn.addEventListener("click", async () => {
+        let loadingElement = document.getElementById("loading-btn");
+        let thisButton = document.getElementById("confirm-btn");
+        loadingElement.style.display = "block";
+        thisButton.style.display = "none";
+
+        if (sessionActive) {
+          await fetch("http://localhost:3000/session", {
+            method: "DELETE",
+            headers: {
+              Accept: "application/json",
+            },
+          });
+        }
+
+        try {
+          const response = await fetch("http://localhost:3000/session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ question: "What is your name?" }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            sessionActive = true;
+            chatContainer.innerHTML = "";
+            localStorage.removeItem("chatHistory");
+            messageInput.value = "";
+            inputContainer.classList.remove("focused");
+            inputContainer.classList.add("centered");
+            modal.style.display = "none";
+            scrollToBottom();
+          }
+        } catch (error) {
+          console.error("Error starting new session:", error);
+        }
+
+        thisButton.style.display = "block";
+        loadingElement.style.display = "none";
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+      // Send message and update session
+      async function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+        let welcomeMessage = document.getElementById("welcome-message");
+        welcomeMessage.style.display = "none";
+
+        const userMessage = document.createElement("div");
+        userMessage.classList.add("message", "user-message");
+        userMessage.innerHTML = formatMessage(message);
+        chatContainer.appendChild(userMessage);
+
+        updateInputPosition();
+        const loadingDiv = showLoading();
+        try {
+          let response = await fetch("http://localhost:3000/session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ question: message }),
+          });
+          if (response.ok) {
+            sessionActive = true;
+          }
+
+          if (response.ok) {
+            const data = await response.json();
+            removeLoading();
+            const aiMessage = document.createElement("div");
+            aiMessage.classList.add("message", "ai-message");
+            aiMessage.innerHTML = formatMessage(data.response || "Response from AI");
+            chatContainer.appendChild(aiMessage);
+            saveChat();
+            scrollToBottom();
+          } else {
+            throw new Error("API request failed");
+          }
+        } catch (error) {
+          removeLoading();
+          const errorMessage = document.createElement("div");
+          errorMessage.classList.add("message", "ai-message");
+          errorMessage.textContent = "Sorry, there was an error processing your request.";
+          chatContainer.appendChild(errorMessage);
+          saveChat();
+          scrollToBottom();
+          console.error("Error sending message:", error);
+        }
+
+        messageInput.value = "";
+        updateInputPosition();
+        saveChat();
+      }
+
+      function sendSuggestion(message) {
+        messageInput.value = message;
+        sendMessage();
+      }
+    </script>
+  </body>
+</html>
+`

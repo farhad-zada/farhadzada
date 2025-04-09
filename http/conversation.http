@@ -1,0 +1,118 @@
+### start-session
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "What can you help me with?"
+}
+
+### 1
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "What is current traction?"
+}
+
+
+### 2
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "Who are the influencers they work with?"
+}
+
+
+### 3
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "Whow much are they in this business?"
+}
+
+
+### 4
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "What is financials in short?"
+}
+
+
+### 5
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "Who are the influencers they work with?"
+}
+
+
+### 6
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "What is their growth plan?"
+}
+
+
+### 7
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "Should i invest in?"
+}
+
+
+### 8
+POST /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+Content-Type: application/json
+
+{
+    "question": "What sets them apart?"
+}
+
+### update session
+PATCH /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
+
+
+### destroy session
+DELETE /session HTTP/1.1
+Host: localhost:3000
+Connection: keep-alive
+Accept: application/json
