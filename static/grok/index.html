@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="shortcut icon" href="favicon.ico" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Farhad Seyfullazada | Resume Assistant</title>
+    <meta property="og:title" content="Farhad Seyfullazada Resume Assistant" />
+    <meta property="og:description"
+        content="Explore Farhad Seyfullazada's skills, experience, and projects through this interactive AI-powered resume assistant." />
+    <meta property="og:image" content="og-image.png" />
+    <meta property="og:url" content="https://farhadzada.com" />
+    <meta property="og:type" content="website" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --accent-color: #10b981;
+            --background-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --text-color: #1f2937;
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            padding: 1rem 1.5rem;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        #welcome-message {
+            text-align: center;
+            padding: 1rem;
+            margin: 1rem auto;
+            border-radius: 12px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+            width: 60%;
+            max-width: 600px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #chat-container {
+            flex: 1;
+            width: 90%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary-color) transparent;
+        }
+
+        #chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chat-container::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 3px;
+        }
+
+        #input-container {
+            position: fixed;
+            bottom: 1rem;
+            width: 90%;
+            max-width: 900px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.5rem;
+            z-index: 50;
+            transition: var(--transition);
+        }
+
+        #input-container.centered {
+            top: 50%;
+            transform: translate(-50%, -50%);
+            bottom: auto;
+        }
+
+        #suggestions {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        #suggestions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .suggestion {
+            background: var(--card-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .suggestion:hover,
+        .suggestion:focus {
+            transform: translateY(-2px);
+            background: var(--secondary-color);
+            color: white;
+            outline: none;
+        }
+
+        #input-wrapper {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            padding: 0.5rem;
+            transition: var(--transition);
+        }
+
+        #input-wrapper:focus-within {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        #message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 0.75rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        #message-input::placeholder {
+            color: #6b7280;
+        }
+
+        #send-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #send-btn:hover,
+        #send-btn:focus {
+            background: var(--primary-color);
+            transform: scale(1.05);
+            outline: none;
+        }
+
+        #new-session-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #new-session-btn:hover,
+        #new-session-btn:focus {
+            background: #059669;
+            transform: scale(1.05);
+            outline: none;
+        }
+
+        .message {
+            margin: 0.75rem 0;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            max-width: 75%;
+            animation: fadeIn 0.3s ease-in;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+        }
+
+        .message p {
+            margin: 0.25rem 0;
+        }
+
+        .message strong {
+            font-weight: 600;
+        }
+
+        .message em {
+            font-style: italic;
+        }
+
+        .user-message {
+            background: var(--secondary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .ai-message {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-sm);
+            margin-right: auto;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modal-content {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+        }
+
+        #modal-message {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        #modal-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        #confirm-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        #confirm-btn:hover,
+        #confirm-btn:focus {
+            background: #dc2626;
+            outline: none;
+        }
+
+        #cancel-btn {
+            background: #e5e7eb;
+            color: var(--text-color);
+        }
+
+        #cancel-btn:hover,
+        #cancel-btn:focus {
+            background: #d1d5db;
+            outline: none;
+        }
+
+        #loading-btn {
+            background: #6b7280;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            #chat-container {
+                width: 95%;
+            }
+
+            #welcome-message {
+                width: 80%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0.75rem 1rem;
+            }
+
+            header h1 {
+                font-size: 1.25rem;
+            }
+
+            #welcome-message {
+                font-size: 0.9rem;
+                width: 90%;
+            }
+
+            #chat-container {
+                padding: 0.75rem;
+            }
+
+            #input-container {
+                width: 95%;
+            }
+
+            .suggestion {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            #message-input {
+                font-size: 0.9rem;
+            }
+
+            #send-btn,
+            #new-session-btn {
+                font-size: 0.9rem;
+                padding: 0.6rem 1.2rem;
+            }
+
+            .message {
+                font-size: 0.9rem;
+                max-width: 80%;
+            }
+
+            #modal-content {
+                padding: 1rem;
+            }
+
+            #modal-message {
+                font-size: 0.9rem;
+            }
+
+            .modal-btn {
+                font-size: 0.9rem;
+                padding: 0.6rem 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.1rem;
+            }
+
+            #welcome-message {
+                font-size: 0.85rem;
+                width: 95%;
+            }
+
+            #input-container {
+                width: 98%;
+            }
+
+            .suggestion {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.7rem;
+            }
+
+            #message-input {
+                font-size: 0.85rem;
+            }
+
+            #send-btn,
+            #new-session-btn {
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Farhad Seyfullazada</h1>
+        <button id="new-session-btn">New Session</button>
+    </header>
+    <div id="welcome-message">
+        Hello! I'm your AI assistant to help you explore Farhad Seyfullazada's resume. Ask me about his skills,
+        experience, projects, or choose a suggestion below.
+    </div>
+    <div id="chat-container" role="log" aria-live="polite"></div>
+    <div id="input-container" class="centered">
+        <div id="suggestions" role="listbox">
+            <div class="suggestion" role="option" tabindex="0" onclick="sendSuggestion('Why to choose Farhad?')">Why to
+                choose Farhad?</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s experience?')">Experience</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What are Farhad Seyfullazada\'s skills?')">Skills</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What projects has Farhad Seyfullazada worked on?')">Projects</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s education background?')">Education</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s contact information?')">Contact</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s location?')">Location</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s LinkedIn profile?')">LinkedIn</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s GitHub profile?')">GitHub</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s portfolio?')">Portfolio</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s summary?')">Summary</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s work history?')">Work History</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s certifications?')">Certifications</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s languages?')">Languages</div>
+            <div class="suggestion" role="option" tabindex="0"
+                onclick="sendSuggestion('What is Farhad Seyfullazada\'s hobbies?')">Hobbies</div>
+        </div>
+        <div id="input-wrapper">
+            <input type="text" id="message-input" placeholder="Ask about Farhad's resume..."
+                aria-label="Type a message to the AI assistant" />
+            <button id="send-btn" aria-label="Send message">Send</button>
+        </div>
+    </div>
+    <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-message">
+        <div id="modal-content">
+            <div id="modal-message">
+                This will clear all previous chat messages. Are you sure you want to continue?
+            </div>
+            <div id="modal-buttons">
+                <button id="confirm-btn" class="modal-btn" aria-label="Confirm new session">Confirm</button>
+                <button id="loading-btn" class="modal-btn" style="display: none" disabled>Loading...</button>
+                <button id="cancel-btn" class="modal-btn" aria-label="Cancel new session">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputContainer = document.getElementById("input-container");
+        const messageInput = document.getElementById("message-input");
+        const sendBtn = document.getElementById("send-btn");
+        const chatContainer = document.getElementById("chat-container");
+        const newSessionBtn = document.getElementById("new-session-btn");
+        const modal = document.getElementById("modal");
+        const confirmBtn = document.getElementById("confirm-btn");
+        const cancelBtn = document.getElementById("cancel-btn");
+        let sessionActive = false;
+
+        // Load chat history from localStorage
+        window.addEventListener("load", () => {
+            const savedChat = localStorage.getItem("chatHistory");
+            if (savedChat) {
+                chatContainer.innerHTML = savedChat;
+                document.getElementById("welcome-message").style.display = "none";
+                sessionActive = true;
+                updateInputPosition();
+            }
+            scrollToBottom();
+        });
+
+        // Input focus handling
+        messageInput.addEventListener("focus", () => {
+            inputContainer.classList.add("focused");
+            inputContainer.classList.remove("centered");
+        });
+
+        messageInput.addEventListener("blur", () => {
+            if (chatContainer.children.length > 0) {
+                inputContainer.classList.add("has-messages");
+            } else {
+                inputContainer.classList.remove("focused");
+                inputContainer.classList.add("centered");
+            }
+        });
+
+        // Keyboard navigation for suggestions
+        document.querySelectorAll(".suggestion").forEach((suggestion) => {
+            suggestion.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    suggestion.click();
+                }
+            });
+        });
+
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.style.display === "flex") {
+                cancelBtn.click();
+            }
+        });
+
+        sendBtn.addEventListener("click", sendMessage);
+        newSessionBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+            confirmBtn.focus();
+        });
+
+        function showLoading() {
+            const loadingDiv = document.createElement("div");
+            loadingDiv.classList.add("message", "ai-message");
+            loadingDiv.id = "loading-message";
+            loadingDiv.textContent = "...";
+            chatContainer.appendChild(loadingDiv);
+            scrollToBottom();
+            return loadingDiv;
+        }
+
+        function removeLoading() {
+            const loadingDiv = document.getElementById("loading-message");
+            if (loadingDiv) loadingDiv.remove();
+        }
+
+        function saveChat() {
+            localStorage.setItem("chatHistory", chatContainer.innerHTML);
+        }
+
+        function scrollToBottom() {
+            const lastMessage = chatContainer.lastElementChild;
+            if (lastMessage) {
+                lastMessage.scrollIntoView({ behavior: "smooth", block: "end" });
+            } else {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+
+        function updateInputPosition() {
+            if (chatContainer.children.length > 0) {
+                inputContainer.classList.add("has-messages");
+                inputContainer.classList.remove("centered");
+            } else {
+                inputContainer.classList.remove("has-messages");
+                inputContainer.classList.add("centered");
+            }
+        }
+
+        function formatMessage(text) {
+            return text
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                .replace(/\n/g, "<br>");
+        }
+
+        confirmBtn.addEventListener("click", async () => {
+            const loadingBtn = document.getElementById("loading-btn");
+            const confirmBtn = document.getElementById("confirm-btn");
+            loadingBtn.style.display = "block";
+            confirmBtn.style.display = "none";
+
+            if (sessionActive) {
+                await fetch("https://farhadzada.com/session", {
+                    method: "DELETE",
+                    headers: { Accept: "application/json" },
+                });
+            }
+
+            try {
+                const response = await fetch("https://farhadzada.com/session", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ question: "What is your name?" }),
+                });
+
+                if (response.ok) {
+                    sessionActive = true;
+                    chatContainer.innerHTML = "";
+                    localStorage.removeItem("chatHistory");
+                    messageInput.value = "";
+                    inputContainer.classList.remove("focused");
+                    inputContainer.classList.add("centered");
+                    modal.style.display = "none";
+                    document.getElementById("welcome-message").style.display = "block";
+                    scrollToBottom();
+                }
+            } catch (error) {
+                console.error("Error starting new session:", error);
+            } finally {
+                confirmBtn.style.display = "block";
+                loadingBtn.style.display = "none";
+            }
+        });
+
+        cancelBtn.addEventListener("click", () => {
+            modal.style.display = "none";
+            messageInput.focus();
+        });
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            document.getElementById("welcome-message").style.display = "none";
+
+            const userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user-message");
+            userMessage.innerHTML = formatMessage(message);
+            chatContainer.appendChild(userMessage);
+
+            updateInputPosition();
+            const loadingDiv = showLoading();
+            try {
+                const response = await fetch("https://farhadzada.com/session", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify({ question: message }),
+                });
+
+                if (response.ok) {
+                    sessionActive = true;
+                    const data = await response.json();
+                    removeLoading();
+                    const aiMessage = document.createElement("div");
+                    aiMessage.classList.add("message", "ai-message");
+                    aiMessage.innerHTML = formatMessage(data.response || "Response from AI");
+                    chatContainer.appendChild(aiMessage);
+                    saveChat();
+                    scrollToBottom();
+                } else {
+                    throw new Error("API request failed");
+                }
+            } catch (error) {
+                removeLoading();
+                const errorMessage = document.createElement("div");
+                errorMessage.classList.add("message", "ai-message");
+                errorMessage.textContent = "Sorry, there was an error processing your request.";
+                chatContainer.appendChild(errorMessage);
+                saveChat();
+                scrollToBottom();
+                console.error("Error sending message:", error);
+            }
+
+            messageInput.value = "";
+            updateInputPosition();
+            saveChat();
+        }
+
+        function sendSuggestion(message) {
+            messageInput.value = message;
+            sendMessage();
+            messageInput.focus();
+        }
+    </script>
+</body>
+
+</html>
