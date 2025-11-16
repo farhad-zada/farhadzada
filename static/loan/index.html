@@ -88,8 +88,8 @@
         <label for="months">Ay:</label>
         <input type="number" id="months" value="36" name="months" />
 
-        <label for="months">Aylıq ödəyəcəm:</label>
-        <input type="number" id="monthly_payment" value="200" name="months" />
+        <label for="monthly_payment">Aylıq ödəyəcəm:</label>
+        <input type="number" id="monthly_payment" name="months" />
 
         <button onclick="onClick()">Hesabla</button>
     </div>
@@ -99,26 +99,34 @@
             let r = annual_rate / 12 / 100;
             return amount * ((r * (1 + r) ** months) / ((1 + r) ** months - 1));
         }
-        function calculateEndsAt(amount, annual_rate, months, monthly_payment) {
+        function calculateEndsAt(amount, annual_rate, monthly_payment) {
             let r = annual_rate / 12 / 100;
-            P = amount * ((r * (1 + r) ** months) / ((1 + r) ** months - 1));
-            let i = 0;
-            while (amount > 0 && i < 10000) {
-                amount += amount * r;
-                console.log(amount);
-                amount -= monthly_payment;
-                console.log(amount);
-                i++;
+            let month = 0;
+            let totalPaid = 0;
+
+            while (amount > 0 && month < 1000) {
+                amount = amount + amount * r;       // add interest
+                month++;
+
+                if (amount <= monthly_payment) {    // last payment
+                    totalPaid += amount;
+                    amount = 0;
+                    break;
+                }
+
+                amount -= monthly_payment;          // normal payment
+                totalPaid += monthly_payment;
             }
-            return i;
+
+            return { ends_at: month, total: totalPaid };
         }
+
 
         function onClick() {
             let amount = +document.getElementById("amount").value;
             let annual_rate = +document.getElementById("annual_rate").value;
             let months = +document.getElementById("months").value;
             let monthly_payment = +document.getElementById("monthly_payment").value;
-
             let payment_per_month = calculateMonthlyPaymentAmount(
                 amount,
                 annual_rate,
@@ -130,23 +138,30 @@
                 return;
             }
 
-            let ends_at = calculateEndsAt(
+            if (!monthly_payment) {
+                monthly_payment = payment_per_month;
+            }
+
+            let { ends_at, total } = calculateEndsAt(
                 amount,
                 annual_rate,
-                months,
                 monthly_payment
             );
+
+            paid_more = total - amount;
 
             document.getElementById(
                 "result"
             ).textContent = `Aylıq ödəniş: ${payment_per_month.toFixed(2)} AZN`;
+
             document.getElementById("total").textContent = `Ümumi ödəniş: ${(
-                payment_per_month * months
+                total
             ).toFixed(2)} AZN`;
+
             document.getElementById("paid_more").textContent = `Əlavə ödəniş: ${(
-                payment_per_month * months -
-                amount
+                paid_more
             ).toFixed(2)} AZN`;
+
             document.getElementById(
                 "ends_at"
             ).textContent = `${ends_at} ay müddətinə bitəcək`;
