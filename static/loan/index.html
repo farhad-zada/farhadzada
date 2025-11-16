@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kalkulyator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 300px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 6px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #0077ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #005fd6;
+        }
+
+        .result-box {
+            background: #eef6ff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        input::-webkit-inner-spin-button,
+        input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="result-box">
+            <div id="result"></div>
+            <div id="total"></div>
+            <div id="paid_more"></div>
+            <div id="ends_at"></div>
+        </div>
+
+        <label for="amount">Məbləğ:</label>
+        <input type="number" id="amount" value="5000" name="amount" />
+
+        <label for="annual_rate">İllik faiz:</label>
+        <input type="number" id="annual_rate" value="12" name="annual_rate" />
+
+        <label for="months">Ay:</label>
+        <input type="number" id="months" value="36" name="months" />
+
+        <label for="months">Aylıq ödəyəcəm:</label>
+        <input type="number" id="monthly_payment" value="200" name="months" />
+
+        <button onclick="onClick()">Hesabla</button>
+    </div>
+
+    <script>
+        function calculateMonthlyPaymentAmount(amount, annual_rate, months) {
+            let r = annual_rate / 12 / 100;
+            return amount * ((r * (1 + r) ** months) / ((1 + r) ** months - 1));
+        }
+        function calculateEndsAt(amount, annual_rate, months, monthly_payment) {
+            let r = annual_rate / 12 / 100;
+            P = amount * ((r * (1 + r) ** months) / ((1 + r) ** months - 1));
+            let i = 0;
+            while (amount > 0 && i < 10000) {
+                amount += amount * r;
+                console.log(amount);
+                amount -= monthly_payment;
+                console.log(amount);
+                i++;
+            }
+            return i;
+        }
+
+        function onClick() {
+            let amount = +document.getElementById("amount").value;
+            let annual_rate = +document.getElementById("annual_rate").value;
+            let months = +document.getElementById("months").value;
+            let monthly_payment = +document.getElementById("monthly_payment").value;
+
+            let payment_per_month = calculateMonthlyPaymentAmount(
+                amount,
+                annual_rate,
+                months
+            );
+
+            if (!isFinite(payment_per_month)) {
+                alert("Yalnış məlumatlar daxil edilib");
+                return;
+            }
+
+            let ends_at = calculateEndsAt(
+                amount,
+                annual_rate,
+                months,
+                monthly_payment
+            );
+
+            document.getElementById(
+                "result"
+            ).textContent = `Aylıq ödəniş: ${payment_per_month.toFixed(2)} AZN`;
+            document.getElementById("total").textContent = `Ümumi ödəniş: ${(
+                payment_per_month * months
+            ).toFixed(2)} AZN`;
+            document.getElementById("paid_more").textContent = `Əlavə ödəniş: ${(
+                payment_per_month * months -
+                amount
+            ).toFixed(2)} AZN`;
+            document.getElementById(
+                "ends_at"
+            ).textContent = `${ends_at} ay müddətinə bitəcək`;
+        }
+
+        onClick(); // auto-calculate at start
+    </script>
+</body>
+
+</html>
